@@ -1,12 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function App() {
-  // --- 状態管理 ---
-  const [balance, setBalance] = useState(1000000);
-  const [risk, setRisk] = useState(2);
-  const [entryPrice, setEntryPrice] = useState(150.00);
-  const [stopLossPrice, setStopLossPrice] = useState(149.80);
-  const [pairType, setPairType] = useState<'JPY' | 'USD'>('JPY');
+  // --- ローカルストレージからデータを読み込む関数 ---
+  const getSavedValue = (key: string, defaultValue: any) => {
+    const saved = localStorage.getItem(key);
+    return saved !== null ? JSON.parse(saved) : defaultValue;
+  };
+
+  // --- 状態管理 (初期値に保存された値を指定) ---
+  const [balance, setBalance] = useState(() => getSavedValue('fx_balance', 1000000));
+  const [risk, setRisk] = useState(() => getSavedValue('fx_risk', 2));
+  const [entryPrice, setEntryPrice] = useState(() => getSavedValue('fx_entry', 150.00));
+  const [stopLossPrice, setStopLossPrice] = useState(() => getSavedValue('fx_stop', 149.80));
+  const [pairType, setPairType] = useState<'JPY' | 'USD'>(() => getSavedValue('fx_pair', 'JPY'));
+
+  // --- 値が変更されるたびに保存する (useEffect) ---
+  useEffect(() => {
+    localStorage.setItem('fx_balance', JSON.stringify(balance));
+    localStorage.setItem('fx_risk', JSON.stringify(risk));
+    localStorage.setItem('fx_entry', JSON.stringify(entryPrice));
+    localStorage.setItem('fx_stop', JSON.stringify(stopLossPrice));
+    localStorage.setItem('fx_pair', JSON.stringify(pairType));
+  }, [balance, risk, entryPrice, stopLossPrice, pairType]);
 
   // --- 計算ロジック (外為どっとコム仕様) ---
   const CONTRACT_SIZE = 1000;
@@ -106,7 +121,6 @@ function App() {
               value={balance} 
               onChange={e => setBalance(Number(e.target.value))} 
               style={commonInputStyle} 
-              placeholder="1,000,000"
             />
           </div>
         </div>
@@ -120,7 +134,6 @@ function App() {
               value={risk} 
               onChange={e => setRisk(Number(e.target.value))} 
               style={commonInputStyle}
-              placeholder="2"
             />
           </div>
           
@@ -134,7 +147,6 @@ function App() {
                 value={entryPrice} 
                 onChange={e => setEntryPrice(Number(e.target.value))} 
                 style={commonInputStyle} 
-                placeholder="150.000"
               />
             </div>
             <div>
@@ -145,7 +157,6 @@ function App() {
                 value={stopLossPrice} 
                 onChange={e => setStopLossPrice(Number(e.target.value))} 
                 style={commonInputStyle} 
-                placeholder="149.800"
               />
             </div>
           </div>
