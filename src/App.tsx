@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { 
   Container, Paper, Text, NumberInput, Select, 
   Slider, Stack, Group, Divider, Title, Box 
